@@ -1,16 +1,38 @@
-# material_downloader
+<img src="assets/icon/logo.png"> 
 
-A new Flutter project.
+![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white)
+![Dart](https://img.shields.io/badge/dart-%230175C2.svg?style=for-the-badge&logo=dart&logoColor=white)
 
-## Getting Started
+ # Material Downloader
+ Multiplatform downloader made with Flutter(Dart)
 
-This project is a starting point for a Flutter application.
+# Platform Compatibility
 
-A few resources to get you started if this is your first Flutter project:
+- [x] android
+- [x] web
+- [ ] linux desktop
+- [ ] windows desktop
+- [ ] iOS
+- [ ] fuchsiaOS
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+# Dependencies
+All plugins used on this project
+```
+dependencies :
+    url_launcher: ^6.1.6
+    flutter_phone_direct_caller: ^2.1.1
+    flutter_launcher_icons: "^0.10.0"
+    flutter_native_contact_picker: ^0.0.3
+    package_info_plus: ^3.0.1
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```
+
+ # Screens
+<img src="screens/screen_1.png"/>
+<img src="screens/screen_2.png"/>
+<img src="screens/screen_3.png"/>
+<img src="screens/screen_4.png"/>
+<img src="screens/screen_5.png"/>
+<img src="screens/screen_6.png"/>
+
+ # Download
