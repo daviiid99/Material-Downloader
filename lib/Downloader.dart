@@ -165,13 +165,6 @@ class _DownloaderState extends State<Downloader>{
      @override
      void initState() async{
 
-    setState(() async {
-      await readJson();
-      await updateDownloadList();
-
-
-    });
-
       // Read json to restore default values
 
     setState(() {
@@ -297,6 +290,8 @@ class _DownloaderState extends State<Downloader>{
             onPressed: () async {
 
                 setState(() {
+                  currentDownloadUrl = [];
+                  currentDownloadName = [];
                   writeJson(myUrl.text, myFileName.text+"."+myExtension.text); // Add new value to map
                   readJson(); // Read udpated map
                   updateDownloadList(); // Update lists
@@ -317,7 +312,8 @@ class _DownloaderState extends State<Downloader>{
 
           SizedBox(height: 30),
 
-          Text("Últimas Descargas", style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),),
+          if (currentDownloadUrl.length > 0)
+          Text("Descarga Actual", style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),),
 
           SizedBox(height: 10),
 
@@ -331,16 +327,20 @@ class _DownloaderState extends State<Downloader>{
               title: Text(currentDownloadName[index]),
               subtitle: Text(currentDownloadUrl[index] + "\n" + progress),
               leading: Icon(Icons.file_download_rounded, color: Colors.blueAccent,),
-                trailing: Icon(Icons.delete_rounded, color: Colors.redAccent,
+                trailing: IconButton(
+                  icon : Icon(Icons.delete_rounded, color: Colors.redAccent,), onPressed: () {
+                    setState(() {
+                      myDownloads.remove(currentDownloadUrl[index]);
+                      updateDownloadList();
+                      readJson();
+                      currentDownloadUrl = [];
+                      currentDownloadName = [];
+                    });
+
+                },
                 ),
               onTap: () {
-                setState(() {
-                  myDownloads.remove(currentDownloadUrl[index]);
-                  updateDownloadList();
-                  readJson();
-                  currentDownloadUrl = [];
-                  currentDownloadName = [];
-                });
+
 
                 },
 
@@ -360,9 +360,11 @@ class _DownloaderState extends State<Downloader>{
       icon: IconButton(
         icon: Icon(Icons.download_done_rounded, color: Colors.white,),
         onPressed: (){
+          readJson();
+          updateDownloadList();
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => Download(downloadsName, downloadsUrl))
+            MaterialPageRoute(builder: (context) => Download(downloadsName, downloadsUrl, myDownloads))
           );
         },
     )
