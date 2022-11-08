@@ -290,8 +290,6 @@ class _DownloaderState extends State<Downloader>{
             onPressed: () async {
 
                 setState(() {
-                  currentDownloadUrl = [];
-                  currentDownloadName = [];
                   writeJson(myUrl.text, myFileName.text+"."+myExtension.text); // Add new value to map
                   readJson(); // Read udpated map
                   updateDownloadList(); // Update lists
@@ -307,13 +305,12 @@ class _DownloaderState extends State<Downloader>{
               myFileName.text = "";
               myExtension.text = "";
             },
-
           ),
 
           SizedBox(height: 30),
 
           if (currentDownloadUrl.length > 0)
-          Text("Descarga Actual", style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),),
+          Text("Descargas Actuales", style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),),
 
           SizedBox(height: 10),
 
@@ -333,8 +330,8 @@ class _DownloaderState extends State<Downloader>{
                       myDownloads.remove(currentDownloadUrl[index]);
                       updateDownloadList();
                       readJson();
-                      currentDownloadUrl = [];
-                      currentDownloadName = [];
+                      currentDownloadUrl.remove(currentDownloadUrl[index]);
+                      currentDownloadName.remove(currentDownloadName[index]);
                     });
 
                 },

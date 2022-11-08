@@ -31,8 +31,4 @@ dependencies :
 <img src="screens/screen_1.png"/>
 <img src="screens/screen_2.png"/>
 <img src="screens/screen_3.png"/>
-<img src="screens/screen_4.png"/>
-<img src="screens/screen_5.png"/>
-<img src="screens/screen_6.png"/>
 
- # Download

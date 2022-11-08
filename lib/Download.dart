@@ -52,6 +52,31 @@ class _DownloadState extends State<Download>{
 
   }
 
+  deleteFile(String file) async {
+    // Delete file
+    File("sdcard/download/$file").deleteSync();
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text("Se ha borrado el siguiente archivo del dispositivo\n$file"),
+    ));
+  }
+
+  cleanDownloads() async {
+
+    setState(() async {
+      myDownloads = {};
+      writeJson();
+      downloadsName = [];
+      downloadsUrl = [];
+      readJson();
+      updateDownloadList();
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text("Se ha limpiado el historial de descargas"),
+    ));
+  }
+
   @override
   void initState(){
     downloadsName = [];
@@ -85,6 +110,8 @@ class _DownloadState extends State<Download>{
           ),
       SizedBox(height: 40,),
       Expanded(
+          child: RefreshIndicator(
+
          child : ListView.builder(
            key: UniqueKey(),
               itemCount: downloadsUrl.length,
@@ -100,6 +127,7 @@ class _DownloadState extends State<Download>{
                         onPressed: () {
                           setState(() async {
                             await myDownloads.remove(downloadsUrl[index]);
+                            deleteFile(downloadsName[index]);
                             downloadsName.remove(index);
                             downloadsUrl.remove(index);
                             writeJson();
@@ -117,9 +145,18 @@ class _DownloadState extends State<Download>{
 
                     );
               }
-          )
-      ),
-      ]
+          ),
+          onRefresh: () {// Read contacts agaim
+    return Future.delayed(
+    Duration(seconds: 1),
+    () {
+      setState(() async {
+        cleanDownloads();
+    });
+         }
+         );
+    }
+      ))]
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.blueAccent,
