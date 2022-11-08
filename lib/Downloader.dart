@@ -360,12 +360,16 @@ class _DownloaderState extends State<Downloader>{
       icon: IconButton(
         icon: Icon(Icons.download_done_rounded, color: Colors.white,),
         onPressed: (){
-          readJson();
-          updateDownloadList();
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Download(downloadsName, downloadsUrl, myDownloads))
-          );
+
+          setState(() async {
+            readJson();
+            updateDownloadList();
+            Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Download(downloadsName, downloadsUrl, myDownloads))
+            );
+          });
+
         },
     )
     ),

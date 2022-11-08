@@ -54,10 +54,10 @@ class _DownloadState extends State<Download>{
 
   @override
   void initState(){
-    setState(() async {
-      await readJson();
-      await updateDownloadList();
-    });
+    downloadsName = [];
+    downloadsUrl = [];
+    readJson();
+    updateDownloadList();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: []);
     super.initState();
   }
@@ -129,10 +129,8 @@ class _DownloadState extends State<Download>{
               icon: IconButton(
                 icon: Icon(Icons.download_rounded, color: Colors.white,),
                 onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Downloader())
-                  );                },
+                  Navigator.pop(context);
+                  },
               )),
         ],
       ),
