@@ -329,7 +329,7 @@ class _DownloaderState extends State<Downloader>{
               tileColor: Colors.black ,
               textColor: Colors.white,
               title: Text(currentDownloadName[index]),
-              subtitle: Text(currentDownloadUrl[index] + "\n" + progress + "%"),
+              subtitle: Text(currentDownloadUrl[index] + "\n" + progress),
               leading: Icon(Icons.file_download_rounded, color: Colors.blueAccent,),
                 trailing: Icon(Icons.delete_rounded, color: Colors.redAccent,
                 ),
