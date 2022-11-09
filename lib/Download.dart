@@ -28,13 +28,13 @@ class _DownloadState extends State<Download>{
   void writeJson() async {
     // Write a value to the map
     jsonString = jsonEncode(myDownloads);
-    File("/data/user/0/com.example.material_downloader/app_flutter/downloads.json").writeAsString(jsonString);
+    File("/data/user/0/com.daviiid99.material_downloader/app_flutter/downloads.json").writeAsString(jsonString);
 
   }
 
    readJson() async {
     // Refresh json
-    jsonString = await File("/data/user/0/com.example.material_downloader/app_flutter/downloads.json").readAsString();
+    jsonString = await File("/data/user/0/com.daviiid99.material_downloader/app_flutter/downloads.json").readAsString();
     myDownloads = jsonDecode(jsonString);
 
   }

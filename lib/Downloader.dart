@@ -35,7 +35,7 @@ class _DownloaderState extends State<Downloader>{
 
    readJson() async {
     // Load the directory
-    final directory = Directory("/data/user/0/com.example.material_downloader/app_flutter");
+    final directory = Directory("/data/user/0/com.daviiid99.material_downloader/app_flutter");
     final path = directory.path;
 
     final filePath = File(directory.path + "/downloads.json");
@@ -80,7 +80,7 @@ class _DownloaderState extends State<Downloader>{
     Map<String, dynamic> tempMap = { key : value};
     myDownloads.addAll(tempMap);
     jsonString = jsonEncode(myDownloads);
-    File("/data/user/0/com.example.material_downloader/app_flutter/downloads.json").writeAsString(jsonString);
+    File("/data/user/0/com.daviiid99.material_downloader/app_flutter/downloads.json").writeAsString(jsonString);
     print("UPDATED MAP " + jsonString);
 
   }
