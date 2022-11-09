@@ -159,6 +159,12 @@ class _DownloadState extends State<Download>{
       ))]
       ),
       bottomNavigationBar: BottomNavigationBar(
+        onTap: (index) {
+          setState(() async {
+            Navigator.pop(context);
+
+          });
+        },
         backgroundColor: Colors.blueAccent,
         items: <BottomNavigationBarItem> [
           BottomNavigationBarItem(

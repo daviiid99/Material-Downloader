@@ -349,6 +349,16 @@ class _DownloaderState extends State<Downloader>{
         ],
       ),
         bottomNavigationBar : BottomNavigationBar(
+          onTap: (index) {
+            setState(() async {
+              readJson();
+              updateDownloadList();
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Download(downloadsName, downloadsUrl, myDownloads))
+              );
+            });
+          },
           backgroundColor: Colors.blueAccent,
     items: <BottomNavigationBarItem>[
 
