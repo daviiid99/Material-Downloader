@@ -32,9 +32,12 @@ class _DownloaderState extends State<Downloader>{
   String progress = "";
   List<String> currentDownloadName = [];
   List<String> currentDownloadUrl = [];
+  List<String> currentDownloadProgress = [];
+  int currentDownloadIndex = 0;
   String filename = "";
   String extension = "";
   bool smartDownload = false;
+  bool semiSmartDownload = false;
 
 
    readJson() async {
@@ -140,6 +143,8 @@ class _DownloaderState extends State<Downloader>{
   checkDownloadType(String file, String extension) async{
      if (file.length == 0 && extension.length == 0){
          this.smartDownload = true;
+     } else if (file.length > 0 && extension.length == 0){
+       semiSmartDownload = true;
      }
 
      return this.smartDownload;
@@ -152,7 +157,7 @@ class _DownloaderState extends State<Downloader>{
    print("EXTENSION : $extension");
 }
 
-   downloadFile(String myUrl, String filename, String extension) async {
+   downloadFile(String myUrl, String filename, String extension, int index) async {
      // Download provided file
      bool completed = false;
 
@@ -164,7 +169,7 @@ class _DownloaderState extends State<Downloader>{
          await Dio().download(myUrl, _localPath + "/" + filename + extension ,
              onReceiveProgress: (received, total) {
            setState(() async {
-             progress = ((received / total) * 100).toStringAsFixed(0) + "%";
+             currentDownloadProgress[index] = ((received / total) * 100).toStringAsFixed(0) + "%";
 
              if (((received / total) * 100) == 100) {
                // Clean completed file download
@@ -173,6 +178,7 @@ class _DownloaderState extends State<Downloader>{
                readJson();
                currentDownloadUrl.remove(myUrl);
                currentDownloadName.remove(filename+extension);
+               currentDownloadProgress.remove(index);
                completed = true;
 
                // Notify the user
@@ -324,7 +330,8 @@ class _DownloaderState extends State<Downloader>{
 
                   // Smart Download
                   // User just enter the URL and the filename and extension is fetch from the url
-                  // This can lead to an error in some cases
+                  // This can lead into an error in some cases
+
                   if (await checkDownloadType(myFileName.text, myExtension.text) == true){
                     await getFileName(myUrl.text);
                     await getFileExtension(myUrl.text);
@@ -333,7 +340,10 @@ class _DownloaderState extends State<Downloader>{
                     updateDownloadList(); // Update lists
                     currentDownloadUrl.add(myUrl.text);
                     currentDownloadName.add(filename + extension);
-                    await downloadFile(myUrl.text, filename, extension);
+                    currentDownloadProgress.add("0");
+                    currentDownloadIndex = currentDownloadName.length - 1;
+                    await downloadFile(myUrl.text, filename, extension, currentDownloadIndex);
+
                     // Erase text input values
                     myFileName.text = "";
                     myExtension.text = "";
@@ -341,13 +351,36 @@ class _DownloaderState extends State<Downloader>{
                     filename = "";
                     extension = "";
                     smartDownload = false;
+                  } else if ((await checkDownloadType(myFileName.text, myExtension.text) == false && semiSmartDownload == true )){
+                    // Semi Smart Download
+                    // User enter the url and name but not the extension
+                    // In this case we will try to catch the extension
+
+                    await getFileExtension(myUrl.text);
+                    writeJson(myFileName.text + extension, myUrl.text);
+                    readJson();
+                    updateDownloadList();
+                    currentDownloadUrl.add(myUrl.text);
+                    currentDownloadName.add(myFileName.text + extension);
+                    currentDownloadProgress.add("0");
+                    currentDownloadIndex = currentDownloadName.length - 1;
+                    await downloadFile(myUrl.text, myFileName.text, extension, currentDownloadIndex);
+                    // Erase text input values
+                    myFileName.text = "";
+                    myExtension.text = "";
+                    myUrl.text = "";
+
                   } else {
+
                     writeJson(myFileName.text + "." + myExtension.text, myUrl.text); // Add new value to map
                     readJson(); // Read udpated map
                     updateDownloadList(); // Update lists
                     currentDownloadUrl.add(myUrl.text);
                     currentDownloadName.add(myFileName.text + "." + myExtension.text);
-                    await downloadFile(myUrl.text, myFileName.text,  "." + myExtension.text);
+                    currentDownloadProgress.add("0");
+                    currentDownloadIndex = currentDownloadName.length - 1;
+                    await downloadFile(myUrl.text, myFileName.text,  "." + myExtension.text, currentDownloadIndex);
+
                     // Erase text input values
                     myFileName.text = "";
                     myExtension.text = "";
@@ -394,8 +427,22 @@ class _DownloaderState extends State<Downloader>{
               tileColor: Colors.black ,
               textColor: Colors.white,
               title: Text(currentDownloadName[index]),
-              subtitle: Text(currentDownloadUrl[index] + "\n" + progress),
+              subtitle: Text(currentDownloadUrl[index] + "\n" + currentDownloadProgress[index]),
               leading: Icon(Icons.file_download_rounded, color: Colors.blueAccent,),
+              trailing: IconButton(
+                icon : Icon(Icons.delete_rounded, color: Colors.redAccent,),
+                onPressed: () {
+                  setState(() async {
+                    myDownloads.remove(currentDownloadName[index]);
+                    updateDownloadList();
+                    readJson();
+                    currentDownloadUrl.remove(currentDownloadUrl[index]);
+                    currentDownloadName.remove(currentDownloadName[index]);
+                    currentDownloadProgress.remove(currentDownloadProgress[index]);
+                  });
+
+                },
+              ),
 
               onTap: () {
 
