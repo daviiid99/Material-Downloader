@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,9 @@ class _DownloaderState extends State<Downloader>{
   String progress = "";
   List<String> currentDownloadName = [];
   List<String> currentDownloadUrl = [];
+  String filename = "";
+  String extension = "";
+  bool smartDownload = false;
 
 
    readJson() async {
@@ -65,10 +69,10 @@ class _DownloaderState extends State<Downloader>{
    updateDownloadList() async {
     // Add downloads to list
     for (String key in myDownloads.keys){
-      if (downloadsUrl.contains(key) == false){
+      if (downloadsName.contains(key) == false){
         // Add file URL + filename to lists
-        downloadsUrl.add(key);
-        downloadsName.add(myDownloads[key]);
+        downloadsUrl.add(myDownloads[key]);
+        downloadsName.add(key);
       }
     }
     return 0;
@@ -116,25 +120,39 @@ class _DownloaderState extends State<Downloader>{
     }
   }
 
-  void _read() async {
-    try {
-      await Dio().download("https://raw.githubusercontent.com/daviiid99/Material_Dialer/master/version.txt",
-          '/sdcard/download/' + "/" + "version.txt");
-      File file = File('/sdcard/download/version.txt');
-      var res  = await file.readAsString();
+   getFileName(String url) {
+    // Content after last '/' element
+    filename = url.split("/").last;
+    var splitted = filename.characters;
+    var finalFilename = "";
 
-      setState(() {
+    for (String c in splitted){
+      if (c.contains(".") == false ){
+        finalFilename +=c;
+      } else {
+        this.filename = finalFilename;
+      }
 
-      });
-
-    } catch (e) {
-      print("Couldn't read file");
     }
+    print("Nombre final del archivo : $filename");
+}
 
+  checkDownloadType(String file, String extension) async{
+     if (file.length == 0 && extension.length == 0){
+         this.smartDownload = true;
+     }
 
+     return this.smartDownload;
   }
 
-  void downloadFile(String myUrl, String filename, String extension) async {
+ getFileExtension(String url){
+     // Content after last "." element
+   this.extension = url.split(".").last;
+   this.extension = "." + this.extension;
+   print("EXTENSION : $extension");
+}
+
+   downloadFile(String myUrl, String filename, String extension) async {
      // Download provided file
      bool completed = false;
 
@@ -143,13 +161,24 @@ class _DownloaderState extends State<Downloader>{
      if (_permissionReady) {
        await _prepareSaveDir();
        try {
-         await Dio().download(myUrl, _localPath + "/" + filename + "." + extension ,
+         await Dio().download(myUrl, _localPath + "/" + filename + extension ,
              onReceiveProgress: (received, total) {
            setState(() async {
              progress = ((received / total) * 100).toStringAsFixed(0) + "%";
 
              if (((received / total) * 100) == 100) {
+               // Clean completed file download
+               myDownloads.remove(filename);
+               updateDownloadList();
+               readJson();
+               currentDownloadUrl.remove(myUrl);
+               currentDownloadName.remove(filename+extension);
                completed = true;
+
+               // Notify the user
+               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                 content: Text("Se ha descargado el archivo\n$filename$extension"),
+               ));
              }
                });
            });
@@ -289,21 +318,44 @@ class _DownloaderState extends State<Downloader>{
               child: Text("Descargar"),
             onPressed: () async {
 
-                setState(() {
-                  writeJson(myUrl.text, myFileName.text+"."+myExtension.text); // Add new value to map
-                  readJson(); // Read udpated map
-                  updateDownloadList(); // Update lists
-                  currentDownloadUrl.add(myUrl.text);
-                  currentDownloadName.add(myFileName.text+"."+myExtension.text);
+                setState(() async {
+                  // Checking download type
+                  await checkDownloadType(myFileName.text, myExtension.text);
+
+                  // Smart Download
+                  // User just enter the URL and the filename and extension is fetch from the url
+                  // This can lead to an error in some cases
+                  if (await checkDownloadType(myFileName.text, myExtension.text) == true){
+                    await getFileName(myUrl.text);
+                    await getFileExtension(myUrl.text);
+                    writeJson(filename + extension, myUrl.text); // Add new value to map
+                    readJson(); // Read udpated map
+                    updateDownloadList(); // Update lists
+                    currentDownloadUrl.add(myUrl.text);
+                    currentDownloadName.add(filename + extension);
+                    await downloadFile(myUrl.text, filename, extension);
+                    // Erase text input values
+                    myFileName.text = "";
+                    myExtension.text = "";
+                    myUrl.text = "";
+                    filename = "";
+                    extension = "";
+                    smartDownload = false;
+                  } else {
+                    writeJson(myFileName.text + "." + myExtension.text, myUrl.text); // Add new value to map
+                    readJson(); // Read udpated map
+                    updateDownloadList(); // Update lists
+                    currentDownloadUrl.add(myUrl.text);
+                    currentDownloadName.add(myFileName.text + "." + myExtension.text);
+                    await downloadFile(myUrl.text, myFileName.text,  "." + myExtension.text);
+                    // Erase text input values
+                    myFileName.text = "";
+                    myExtension.text = "";
+                    myUrl.text = "";
+                  }
 
                 });
 
-              downloadFile(myUrl.text, myFileName.text, myExtension.text);
-
-              // Erase text input values
-              myUrl.text = "";
-              myFileName.text = "";
-              myExtension.text = "";
             },
           ),
 
@@ -319,10 +371,10 @@ class _DownloaderState extends State<Downloader>{
                     child: Column (
                     children: [
                       Text("Cómo descargar un archivo", style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),),
-                      SizedBox(height: 10,),
-                      Text("1.- Introduce una URL (https://imagen.png)", style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.normal,), textAlign: TextAlign.left,),
-                      Text("2.- Introduce un nombre para el archivo (imagen)", style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.normal), textAlign: TextAlign.left,),
-                      Text("3.- Introduce una extensión (sin punto) (png)", style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.normal), textAlign: TextAlign.left,),
+                      SizedBox(height: 15,),
+                      Text("1.- Introduce una URL (Obligatorio)", style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.normal,), textAlign: TextAlign.left,),
+                      Text("2.- Introduce un nombre para el archivo (Opcional)", style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.normal), textAlign: TextAlign.left,),
+                      Text("3.- Introduce una extensión (Opcional)", style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.normal), textAlign: TextAlign.left,),
                       Text("4.- Haz click en Descargar y espera ;)", style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.normal), textAlign: TextAlign.left,),
                   ],
                 )
@@ -344,18 +396,7 @@ class _DownloaderState extends State<Downloader>{
               title: Text(currentDownloadName[index]),
               subtitle: Text(currentDownloadUrl[index] + "\n" + progress),
               leading: Icon(Icons.file_download_rounded, color: Colors.blueAccent,),
-                trailing: IconButton(
-                  icon : Icon(Icons.delete_rounded, color: Colors.redAccent,), onPressed: () {
-                    setState(() {
-                      myDownloads.remove(currentDownloadUrl[index]);
-                      updateDownloadList();
-                      readJson();
-                      currentDownloadUrl.remove(currentDownloadUrl[index]);
-                      currentDownloadName.remove(currentDownloadName[index]);
-                    });
 
-                },
-                ),
               onTap: () {
 
 

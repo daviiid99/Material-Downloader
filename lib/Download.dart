@@ -42,10 +42,10 @@ class _DownloadState extends State<Download>{
   updateDownloadList() async {
     // Add downloads to list
     for (String key in myDownloads.keys){
-      if (downloadsUrl.contains(key) == false){
+      if (downloadsName.contains(key) == false){
         // Add file URL + filename to lists
-        downloadsUrl.add(key);
-        downloadsName.add(myDownloads[key]);
+        downloadsUrl.add(myDownloads[key]);
+        downloadsName.add(key);
       }
     }
     return 0;
@@ -59,6 +59,17 @@ class _DownloadState extends State<Download>{
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text("Se ha borrado el siguiente archivo del dispositivo\n$file"),
     ));
+  }
+
+  cleanChoosedFile(String file) async {
+    setState(() async {
+      myDownloads.remove(file);
+      writeJson();
+      downloadsName = [];
+      downloadsUrl = [];
+      readJson();
+      updateDownloadList();
+    });
   }
 
   cleanDownloads() async {
@@ -108,7 +119,12 @@ class _DownloadState extends State<Download>{
             alignment: Alignment.center,
               child : Text("Últimas Descargas", style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),)
           ),
-      SizedBox(height: 40,),
+      if (downloadsName.length == 0) Image.asset("assets/icon/logo.png"),
+          if (downloadsName.length == 0)Text("Aquí aparecerán tus descargas", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),),
+
+
+
+          SizedBox(height: 40,),
       Expanded(
           child: RefreshIndicator(
 
@@ -121,12 +137,22 @@ class _DownloadState extends State<Download>{
                       textColor: Colors.white,
                       title: Text(downloadsName[index]),
                       subtitle: Text(downloadsUrl[index]),
-                      leading: Icon(Icons.file_download_rounded, color: Colors.blueAccent,),
+                      leading: IconButton(
+                        icon : Icon(Icons.cleaning_services_rounded, color: Colors.yellowAccent, ),
+                        onPressed: (){
+                          setState(() async {
+                            cleanChoosedFile(downloadsName[index]);
+
+                          });
+
+                        },
+
+                      ),
                       trailing: IconButton(
                         icon : Icon(Icons.delete_rounded, color: Colors.redAccent,),
                         onPressed: () {
                           setState(() async {
-                            await myDownloads.remove(downloadsUrl[index]);
+                            await myDownloads.remove(downloadsName[index]);
                             deleteFile(downloadsName[index]);
                             downloadsName.remove(index);
                             downloadsUrl.remove(index);
