@@ -309,6 +309,26 @@ class _DownloaderState extends State<Downloader>{
 
           SizedBox(height: 30),
 
+          if (currentDownloadUrl.length == 0)
+            Stack(
+            children: [
+            Container(
+            child: SingleChildScrollView(
+                child: Align(
+                    alignment: Alignment.center,
+                    child: Column (
+                    children: [
+                      Text("Cómo descargar un archivo", style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),),
+                      SizedBox(height: 10,),
+                      Text("1.- Introduce una URL (https://imagen.png)", style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.normal,), textAlign: TextAlign.left,),
+                      Text("2.- Introduce un nombre para el archivo (imagen)", style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.normal), textAlign: TextAlign.left,),
+                      Text("3.- Introduce una extensión (sin punto) (png)", style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.normal), textAlign: TextAlign.left,),
+                      Text("4.- Haz click en Descargar y espera ;)", style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.normal), textAlign: TextAlign.left,),
+                  ],
+                )
+                    )
+            ))])
+            ,
           if (currentDownloadUrl.length > 0)
           Text("Descargas Actuales", style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),),
 
