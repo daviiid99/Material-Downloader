@@ -173,12 +173,6 @@ class _DownloaderState extends State<Downloader>{
 
              if (((received / total) * 100) == 100) {
                // Clean completed file download
-               myDownloads.remove(filename);
-               updateDownloadList();
-               readJson();
-               currentDownloadUrl.remove(myUrl);
-               currentDownloadName.remove(filename+extension);
-               currentDownloadProgress.remove(index);
                completed = true;
 
                // Notify the user
@@ -343,7 +337,6 @@ class _DownloaderState extends State<Downloader>{
                     currentDownloadProgress.add("0");
                     currentDownloadIndex = currentDownloadName.length - 1;
                     await downloadFile(myUrl.text, filename, extension, currentDownloadIndex);
-
                     // Erase text input values
                     myFileName.text = "";
                     myExtension.text = "";
@@ -420,7 +413,8 @@ class _DownloaderState extends State<Downloader>{
           SizedBox(height: 10),
 
           Expanded(
-          child : ListView.builder(
+          child: RefreshIndicator(
+            child: ListView.builder(
             itemCount: currentDownloadUrl.length,
             itemBuilder: (context, index) {
               return ListTile(
@@ -429,20 +423,6 @@ class _DownloaderState extends State<Downloader>{
               title: Text(currentDownloadName[index]),
               subtitle: Text(currentDownloadUrl[index] + "\n" + currentDownloadProgress[index]),
               leading: Icon(Icons.file_download_rounded, color: Colors.blueAccent,),
-              trailing: IconButton(
-                icon : Icon(Icons.delete_rounded, color: Colors.redAccent,),
-                onPressed: () {
-                  setState(() async {
-                    myDownloads.remove(currentDownloadName[index]);
-                    updateDownloadList();
-                    readJson();
-                    currentDownloadUrl.remove(currentDownloadUrl[index]);
-                    currentDownloadName.remove(currentDownloadName[index]);
-                    currentDownloadProgress.remove(currentDownloadProgress[index]);
-                  });
-
-                },
-              ),
 
               onTap: () {
 
@@ -451,10 +431,28 @@ class _DownloaderState extends State<Downloader>{
 
                 );
             }
-          )
+          ),
+                onRefresh: () {// Read contacts agaim
+                  return Future.delayed(
+                    Duration(seconds: 1),
+                    () {
+                    setState(() async {
+                      updateDownloadList();
+                      readJson();
+                      currentDownloadUrl = [];
+                      currentDownloadName = [];
+                      currentDownloadProgress = [];
+                      currentDownloadIndex = 0;
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text("Se ha limpiado el historial de decsrgas"),
+                      ));
+                    });
+                    }
+                  );
+                  }
           ),
 
-        ],
+          )],
       ),
         bottomNavigationBar : BottomNavigationBar(
           onTap: (index) {
