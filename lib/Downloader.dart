@@ -38,6 +38,9 @@ class _DownloaderState extends State<Downloader>{
   String extension = "";
   bool smartDownload = false;
   bool semiSmartDownload = false;
+  String urlField = "";
+  String nameField = "";
+  String extensionField = "";
 
 
    readJson() async {
@@ -336,14 +339,22 @@ class _DownloaderState extends State<Downloader>{
                     currentDownloadName.add(filename + extension);
                     currentDownloadProgress.add("0");
                     currentDownloadIndex = currentDownloadName.length - 1;
-                    await downloadFile(myUrl.text, filename, extension, currentDownloadIndex);
+
+                    // Save values into a string before erasing fileds
+                    urlField = myUrl.text;
+                    nameField = filename;
+                    extensionField = extension;
+
                     // Erase text input values
                     myFileName.text = "";
                     myExtension.text = "";
                     myUrl.text = "";
                     filename = "";
                     extension = "";
+
+                    await downloadFile(urlField, nameField, extensionField, currentDownloadIndex);
                     smartDownload = false;
+
                   } else if ((await checkDownloadType(myFileName.text, myExtension.text) == false && semiSmartDownload == true )){
                     // Semi Smart Download
                     // User enter the url and name but not the extension
@@ -357,11 +368,19 @@ class _DownloaderState extends State<Downloader>{
                     currentDownloadName.add(myFileName.text + extension);
                     currentDownloadProgress.add("0");
                     currentDownloadIndex = currentDownloadName.length - 1;
-                    await downloadFile(myUrl.text, myFileName.text, extension, currentDownloadIndex);
+
+                    // Save values into a string before erasing fileds
+                    urlField = myUrl.text;
+                    nameField = myFileName.text;
+                    extensionField = extension;
+
                     // Erase text input values
                     myFileName.text = "";
                     myExtension.text = "";
                     myUrl.text = "";
+
+                    await downloadFile(urlField, nameField, extensionField, currentDownloadIndex);
+
 
                   } else {
 
@@ -372,12 +391,19 @@ class _DownloaderState extends State<Downloader>{
                     currentDownloadName.add(myFileName.text + "." + myExtension.text);
                     currentDownloadProgress.add("0");
                     currentDownloadIndex = currentDownloadName.length - 1;
-                    await downloadFile(myUrl.text, myFileName.text,  "." + myExtension.text, currentDownloadIndex);
+
+                    // Save values into a string before erasing fileds
+                    urlField = myUrl.text;
+                    nameField = myFileName.text;
+                    extensionField = myExtension.text;
 
                     // Erase text input values
                     myFileName.text = "";
                     myExtension.text = "";
                     myUrl.text = "";
+
+                    await downloadFile(urlField, nameField,  "." + extensionField, currentDownloadIndex);
+
                   }
 
                 });
